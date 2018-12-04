@@ -1,0 +1,97 @@
+{% extends 'teacher/teacher_base.html' %}
+{% load staticfiles %}
+
+{% block title %} 所有文件 {% endblock %}
+{% block header_extends %}
+    <script src="{% static 'extends_js.js' %}"></script>
+    <script>
+        window.onload = function(){
+            var form = document.getElementsByTagName('form')[0];
+            var upload_btn = document.getElementById('upload_btn');
+            upload_btn.onclick = upload_file;
+
+        }
+    </script>
+{% endblock %}
+
+{% block content_header %}所有文件{% endblock %}
+
+{% block group_active %}active{% endblock %}
+{% block files_active %}active{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                管理员文件
+            </div>
+            <div class="panel-body">
+                 {% for file, file_path in public_files_dict.items %}
+                    <a href="{% url 'download_file' file_path %}">{{ file }}</a>
+                {% empty %}
+                    <p>暂无文件</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                我上传的文件
+            </div>
+            <div class="panel-body">
+                {% for file, file_path in teacher_files_dict.items %}
+                <a href="{% url 'download_file' file_path %}">
+                    {{ file }}
+                </a>
+                <a href="{% url 'delete_file' file_path %}" 
+                class='btn btn-danger'>删除文件</a> 
+                <br>
+                {% empty %}
+                    <p>暂未上传文件</p>
+                {% endfor %}
+                <form action="{% url 'upload_file' %}" method="POST" 
+                    enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- enctype="multipart/form-data" 表示不对字符进行编码 -->
+                    <input type="file" name='myfile' id='uploadFile'>
+                    <br>
+                    <button id='upload_btn' class='btn btn-primary'>
+                        上传文件
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                学生上传的文件
+            </div>
+            <div class="panel-body">
+                {% for student, student_files_dict in students_dict.items %}
+                    <h4>{{ student }}</h4>
+                    {% for file, file_path in student_files_dict.items %}
+                        <a href="{% url 'download_file' file_path %}">{{ file }}</a>
+                    {% empty %}
+                        <p>暂无文件</p>
+                    {% endfor %}
+                {% empty %}
+                    <p>暂无学生</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<div id="hidebg">
+    <div id="show-upload-info">
+        <div class="show-info"><h2>文件上传中</h2></div>
+    </div>
+</div>
+
+
+{% endblock %}
+

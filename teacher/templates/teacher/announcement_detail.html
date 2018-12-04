@@ -1,0 +1,18 @@
+{% extends 'teacher/teacher_ann.html' %}
+
+{% block title %}公告{% endblock %}
+
+{% block content_header %}公告信息{% endblock %}
+
+{% block content %}
+    <p>
+        发布者：
+            {% if announcement.sender.is_superuser %}
+                管理员
+            {% else %}
+                {{ announcement.sender.name }}管理员
+            {% endif %}
+        时间：{{ announcement.pub_time }}
+    </p>
+    <p>{{ announcement.text }}</p>
+{% endblock %}

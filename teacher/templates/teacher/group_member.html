@@ -1,0 +1,70 @@
+{% extends 'teacher/teacher_base.html' %}
+{% load staticfiles %}
+
+
+{% block title %} 我的小组 {% endblock %}
+{% block header_extends %}
+    <script src="{% static 'extends_jquery.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+            $('#pub_ann').on('click', pub_ann);
+        });
+    </script>
+{% endblock %}
+
+
+{% block content_header %}我的小组{% endblock %}
+
+{% block group_active %}active{% endblock %}
+{% block member_active %}active{% endblock %}
+
+{% block content %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4>小组成员</h4>
+    </div>
+    <div class="panel-body">
+        {% for student in students %}
+            <h3>
+                <a href="{% url 'student_info' %}?student_name={{student.name}}">
+                    {{ student.name }}
+                </a>
+            </h3>
+            {% if student.thesis %}
+                他的选题：<a href="{% url 'thesis_detail' student.thesis.pk %}">
+                    {{ student.thesis.title }}
+                </a>
+            {% elif student.user.thesis_set.all %}
+                <span class="text-danger">他提交的待审核的选题：</span>
+                <a href="{% url 'thesis_detail' student.user.thesis_set.first.pk %}">
+                    {{ student.user.thesis_set.first.title }}
+                </a>
+            {% else %}
+                <h4>暂未选择题目</h4>
+            {% endif %}
+        {% empty %}
+            <h3>暂无学生</h3>
+        {% endfor %}
+        {% if students %}
+        <div class="teacher-pub-ann">
+            <button id='showPubForm' class='btn btn-primary'>
+                发布公告
+            </button>
+        </div>
+        <div class='teacher-pub-form' id='pubForm'>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <label for="group_ann">请输入内容</label> <br />
+                <textarea class='teacher-pub-text' id='group_ann' name='group_ann'
+                        placeholder='请输入内容'></textarea> <br />
+                <button class='btn btn-primary pull-right' id='pub_ann'>发布</button>
+            </form>
+            <button class='btn btn-danger mar-right' onclick='hid_div()'>
+                取消
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
+

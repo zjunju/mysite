@@ -1,0 +1,160 @@
+{% extends 'teacher/teacher_base.html' %}
+{% load staticfiles %}
+
+{% block title %}我的选题{% endblock %}
+
+{% block my_thesis_active %}active{% endblock %}
+
+{% block content_header %} 
+    我的论文题目
+{% endblock %}
+
+{% block content %}
+<div class="col-md-9">
+  <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs">
+          <li class="active">
+            <a href="#allThesis" data-toggle="tab" aria-expanded="true">
+                所有选题
+            </a>
+          </li>
+          <li class="">
+            <a href="#isChoiced" data-toggle="tab" aria-expanded="false">
+                已被选选题
+            </a>
+          </li>
+          <li class="">
+            <a href="#noChoiced" data-toggle="tab" aria-expanded="false">
+                未被选选题
+            </a>
+          </li>
+          <li class="">
+            <a href="#needVerify" data-toggle="tab" aria-expanded="false">
+                待审核的选题
+            </a>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane active" id="allThesis">
+                {% for thesis in theses %}
+                <div class="thesis-info">
+                    <h2>
+                        <a href="{% url 'thesis_detail' thesis.pk %}">{{ thesis.title }}</a>
+                    </h2>
+                    <p><span>发布时间：{{ thesis.pub_date }}</span> 
+                        <span>  选题学生：
+                            {% if thesis.is_choiced %}
+                                <a href="{% url 'student_info' %}?student_name={{ thesis.student.name }}">
+                                    {{ thesis.student }}
+                                </a>
+                            {% else %}
+                                暂无人选
+                            {% endif %}
+                        </span>
+                    </p>
+                    {% autoescape off %}
+                    <p>{{ thesis.content|striptags|truncatechars:50 }} 
+                        <a href="{% url 'thesis_detail' thesis.id %}">
+                            查看完整内容
+                        </a>
+                    </p>
+                    {% endautoescape %}
+                </div>
+                {% empty %}
+                    <div class="center">
+                        <i class="fa fa-book fa-5x" aria-hidden="true"></i>
+                        <p>暂未发布任何论文题目</p>
+                    </div>
+                {% endfor %}
+                <a href="{% url 'publish_thesis' %}?from={{request.get_full_path}}" 
+                    class="btn btn-success">
+                    发布论文题目
+                </a>
+            </div>
+              <!-- /.tab-pane -->
+
+              <div class="tab-pane" id="isChoiced">
+                {% for thesis in is_choiced_theses %}
+                    <h2><a href="{% url 'thesis_detail' thesis.pk %}">{{ thesis.title }}</a></h2>
+                    <p><span>发布时间：{{ thesis.pub_date }}</span> 
+                        <span>
+                            选题学生：
+                            <a href="{% url 'student_info' %}?student_name={{ thesis.student.name }}">
+                                {{ thesis.student }}
+                            </a>
+                        </span>
+                    </p>
+                    {% autoescape off %}
+                    <p>{{ thesis.content|striptags|truncatechars:50 }} 
+                        <a href="{% url 'thesis_detail' thesis.id %}">查看完整内容</a>
+                    </p>
+                    {% endautoescape %}
+                {% empty %}
+                    <div class="center">
+                        <i class="fa fa-book fa-5x" aria-hidden="true"></i>
+                        <p>暂无已被选择论文题目</p>
+                    </div>
+                {% endfor %}
+              </div>
+              <!-- /.tab-pane -->
+
+              <div class="tab-pane" id="noChoiced">
+                {% for thesis in no_choiced_theses %}
+                  <div class="thesis-info">
+                    <h2>
+                        <a href="{% url 'thesis_detail' thesis.pk %}">{{ thesis.title }}</a>
+                    </h2>
+                    <p>发布时间：{{ thesis.pub_date }}</p>
+                    {% autoescape off %}
+                        <p>{{ thesis.content|striptags|truncatechars:50 }} 
+                            <a href="{% url 'thesis_detail' thesis.id %}">查看完整内容</a>
+                        </p>
+                    {% endautoescape %}
+                    <button onclick="delete_thesis('{% url "delete_thesis" %}?thesis_title={{ thesis.title }}')" class="btn  btn-danger pull-right">
+                        删除选题
+                    </button>
+                    <a href="{% url 'update_thesis' thesis.pk %}?from={{ request.get_full_path }}" class='btn btn-primary mar-right'>
+                        修改选题
+                    </a> 
+                  </div>
+                {% empty %}
+                    <div class="center">
+                        <i class="fa fa-book fa-5x" aria-hidden="true"></i>
+                        <p>暂未发布任何论文题目</p>
+                    </div>
+                {% endfor %}
+              </div>
+              <!-- /.tab-pane -->
+
+            <div class="tab-pane" id="needVerify">
+                {% for thesis in need_verify_theses %}
+                    <h2><a href="{% url 'thesis_detail' thesis.pk %}">{{ thesis.title }}</a></h2>
+                    <p><span>发布时间：{{ thesis.pub_date }}</span> 
+                        <span>  
+                        发布选题的学生：
+                        <a href="{% url 'student_info' %}?student_name={{ thesis.publisher.student.name }}">
+                            {{ thesis.publisher.student }}
+                        </a>
+                        </span>
+                    </p>
+                    {% autoescape off %}
+                    <p>{{ thesis.content|striptags|truncatechars:50 }} 
+                        <a href="{% url 'thesis_detail' thesis.id %}">查看完整内容</a>
+                    </p>
+                    {% endautoescape %}
+                {% empty %}
+                    <div class="center">
+                        <i class="fa fa-book fa-5x" aria-hidden="true"></i>
+                        <p>暂无待审核的论文题目</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <!-- /.tag-pane -->
+        </div>
+        <!-- /.tab-content -->
+  </div>
+  <!-- /.nav-tabs-custom -->
+</div>
+
+{% endblock %}

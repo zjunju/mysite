@@ -1,0 +1,101 @@
+{% extends 'student/student_home.html' %}
+
+{% block title %}我的收藏{% endblock %}
+
+{% block info_active %}{% endblock %}
+{% block my_collection_active %}active{% endblock %}
+{% block thesis_active %}active{% endblock %}
+
+{% block content_header %}我的收藏{% endblock %}
+ 
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>我收藏的教师</h4>
+            </div>
+            <div class="panel-body">
+                {% for teacher in teacher_collections %}
+                    <h4>
+                        <a href="{% url 'teacher_info' %}?teacher_name={{ teacher.name }}">
+                            {{ teacher.name }}
+                        </a>
+                    </h4>
+                    <p>剩余指导学生人数：{{ teacher.rest_number }}</p>
+                    <p>剩余可选论文题数：{{ teacher.getRestThesisNum }}</p>
+                    <a href="{% url 'cancel_collect' 'teacher' teacher.pk %}" class="btn btn-danger">
+                        取消收藏
+                    </a>
+                {% empty %}
+                <div class="center">
+                    <i class="fa fa-users fa-3x " aria-hidden="true"></i>
+                    <p>暂未收藏</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4>我收藏的选题</h4>
+            </div>
+            <div class="panel-body">
+                {% for thesis in thesis_collections %}
+                    <h4>
+                        <a href="{% url 'thesis_detail' thesis.pk %}">
+                            {{ thesis.title }}
+                        </a>
+                    </h4>
+                    <p>{{ thesis.content|striptags|truncatechars:50 }}</p>
+                    <a href="{% url 'cancel_collect' 'thesis' thesis.pk %}" 
+                        class="btn btn-danger">
+                        取消收藏
+                    </a>
+                {% empty %}
+                <div class="center">
+                    <i class="fa fa-book fa-3x " aria-hidden="true"></i>
+                <p>暂未收藏</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% if invalid_theses or invalid_teachers %}
+        <div class="col-md-3">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    已失效的收藏
+                </div>
+                <div class="panel-body">
+                    {% if invalid_theses %}
+                        <h4 class="text-danger">已被选择的收藏的选题</h4>
+                        {% for invalid_thesis in invalid_theses %}
+                        <h4>
+                            <a href="{% url 'thesis_detail' invalid_thesis.pk %}">
+                                {{ invalid_thesis.title }}
+                            </a>
+                        </h4>
+                        <a href="{% url 'cancel_collect' 'thesis' invalid_thesis.pk %}" class="btn btn-danger">
+                            取消收藏
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                    {% if invalid_teachers %}
+                        <h4 class="text-danger">暂无剩余指导学生人数的教师</h4>
+                        {% for invalid_teacher in invalid_teachers %}
+                            <h4>
+                                {{ invalid_teacher.name }}
+                            </h4>
+                            <a href="{% url 'cancel_collect' 'teacher' invalid_teacher.pk %}" class="btn btn-danger">
+                                取消收藏
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

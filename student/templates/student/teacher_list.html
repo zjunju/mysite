@@ -1,0 +1,142 @@
+{% extends 'student/student_home.html' %}
+{% load staticfiles %}
+
+{% block title %}老师列表{% endblock %}
+
+{% block header_extends %}
+    <!-- 根据教师的学生人数和论文篇数排名 -->
+    <link rel="stylesheet" href="{% static 'base.css' %}">
+    <script src="{% static 'extends_js.js' %}"></script>
+    <script>
+        window.onload = selectIndex;
+    </script>
+{% endblock %}
+
+{% block info_active %}{% endblock %}
+{% block thesis_active %}active{% endblock %}
+{% block all_teacher_active %}active{% endblock %}
+
+{% block content_header %}
+    {{ content_header_text }}(共有{{ teachers|length }}位教师)
+{% endblock %}
+
+{% block search_form %}
+    <div class="input-group">
+        <input type="text" id="teacher_name" class="form-control" 
+                placeholder="输入教师姓名搜索">
+        <span class="input-group-btn">
+        <button type="button" name="search" id="search-btn" 
+                class="btn btn-flat" onclick="search_teacher()">
+            <i class="fa fa-search"></i>
+        </button>
+        </span>
+    </div>
+{% endblock %}
+
+{% block content %}
+{% if show_order_by %}
+<form action="" method='GET' id='order_by_form'>
+    {% csrf_token %}
+    <select name="order_by" id="order_by_select" onchange="submitOrderBy()">
+        <option value="rest_number" >根据教师剩余指导学生人数排序</option>
+        <option value="rest_thesis_number">根据教师剩余论文选题数量排序</option>
+    </select>
+</form>
+{% endif %}
+<div class="row">
+    {% for teacher in teachers_with_page %}
+        <div class="col-md-4" >
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4>   
+                    <a href="{% url 'teacher_info' %}?teacher_name={{ teacher.name }}" title='点击查看老师信息'>
+                        {{ teacher.name }}
+                    </a>
+                  </h4>
+                </div>
+                <div class="panel-body">
+                    <p>联系方式：{{ teacher.phonenumber }}</p>
+                    <p>剩余指导学生人数：{{ teacher.rest_number }}</p>
+                    <p>剩余毕业论文题目数量：{{ teacher.getRestThesisNum }}</p>
+                    <p>
+                        个人简介：
+                        {% if teacher.introduction %}
+                            <span>{{ teacher.introduction }}</span>
+                        {% else %}
+                            <span>暂未填写</span>
+                        {% endif %}
+                    </p>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            他的可选选题(一共{{ teacher.getRestThesisNum }}篇)
+                        </div>
+                        <div class="panel-body">
+                            {% for thesis in teacher.getRestTheses %}
+                                {% if not thesis.is_choiced %}
+                                <h3>
+                                    <a href="{% url 'thesis_detail' thesis.pk %}">{{ thesis.title }}</a>
+                                </h3>
+                                <p><span>{{ thesis.content|striptags|truncatechars:20 }}</span></p>
+                                {% endif %}
+                            {% empty %}
+                                <p class="text-danger">暂无选题</p> 
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a href="{% url 'collect' teacher.pk %}?content_type=teacher" 
+                        class='btn btn-danger pull-right'>收藏教师</a>
+                    <a href="{% url 'apply_teacher' teacher.pk  %}" 
+                        class="btn btn-primary mar-right">
+                        选择老师
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>暂无老师可选</p>
+    {% endfor %}
+    </div>
+    <!-- 分页器 --> <!-- teachers_with_page 当前页的paginator实例对象 -->
+    {% if teachers_with_page %}
+    <div class="student-paginator">
+        <ul class="pagination">
+            <li>
+                {% if teachers_with_page.has_previous %}
+                    <a href="?page={{ teachers_with_page.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                {% else %}
+                    <span aria-hidden="true" title='没有上一页了'>&laquo;</span>
+                {% endif %}
+            </li>
+            {% for page in page_range %}
+                <!-- teachers.number  返回当前页的页码 -->
+                {% if page == teachers_with_page.number %}    
+                    <li class="active"><span>{{ page }}</span></li>
+                {% else %}
+                    {% if page == '...' %}
+                        <li><span>{{ page }}</span></li>
+                    {% else %}
+                        <li>
+                        <a href="?page={{ page }}">
+                         {{ page }}
+                        </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            <li>
+                {% if teachers_with_page.has_next %}
+                    <a href="?page={{ teachers_with_page.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                {% else %}
+                    <span aria-hidden="true" title='没有下一页了'>&raquo;</span>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+{% endblock %}
+

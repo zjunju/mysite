@@ -1,0 +1,41 @@
+{% extends 'teacher/teacher_base.html' %}
+
+{% block content_header %}全部消息{% endblock %}
+
+{% block message_active %}active{% endblock %}
+{% block no_r_message_active %} active {% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-6">
+      <div class="list-group">
+        {% for student, latest_message in latest_message_dict.items %}
+          <!-- 显示消息发送者和时间  -->
+          <a href="{% url 'message_with_student' %}?student_pk={{ student.pk }}" 
+                    class="list-group-item">
+            <h4 class="list-group-item-heading">
+              <span>
+                <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                  {{ student.name }}
+                  <!-- 显示发送者的名字 -->
+              </span>
+              
+              <span class='pull-right'>
+                <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>
+                  {{ latest_message.send_time|date:'m-d i:s' }}
+              </span>
+            </h4>
+            <p class="list-group-item-text">
+              {{ latest_message.content|truncatechars:30 }}
+            </p>
+            </a>
+          {% empty %}
+            <div class="center">
+                <i class="fa fa-commenting-o fa-5x" aria-hidden="true"></i>
+                <p>暂无未读公告</p>
+            </div>
+          {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

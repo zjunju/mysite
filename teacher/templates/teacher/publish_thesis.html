@@ -1,0 +1,34 @@
+{% extends 'teacher/teacher_base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}发布选题{% endblock %}
+{% block info_active %}{% endblock %}
+{% block my_thesis_active %}active{% endblock %}
+
+{% block content_header %}
+    {{ panel_head }}
+{% endblock %}
+
+{% block content %}
+    <form action="" method='POST'>
+        <h3 class="text-danger">{{ thesis_form.non_field_errors }}</h3>
+        {% csrf_token %}
+        {% for field in thesis_form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label> <br>
+            {{ field }}
+            {% if field.name == 'tag' %}
+                <span class='text-danger'>如果想给论文题目增加多个标签，可以使用空格分隔标签</span>
+            {% endif %}
+            <p class='text-danger'>{{ field.errors.as_text }}</p>
+        {% endfor %}
+        <input type="submit" value='{{ submit_value }}' class='btn btn-primary pull-right'>
+        <a href="javascript:window.history.go(-1)" class="btn btn-danger mar-right">返回</a>
+    </form>
+{% endblock %}
+
+
+{% block script_extends %}
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+{% endblock %}
